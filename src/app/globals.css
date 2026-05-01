@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+}
+
+:root {
+  --background: #fdfdfc;
+  --foreground: #1a1a18;
+  --emerald-primary: #059669;
+  --forest-deep: #1b4332;
+  --accent-cream: #f9f7f2;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-[var(--background)] text-[var(--foreground)] antialiased overflow-x-hidden;
+  }
+}
+
+.glass-nav {
+  @apply bg-white/70 backdrop-blur-xl border-b border-zinc-200/50 sticky top-0 z-50;
+}
+
+.btn-primary {
+  @apply bg-[var(--forest-deep)] text-white px-8 py-4 font-bold rounded-xl hover:bg-black transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 shadow-lg shadow-emerald-900/10;
+}
+
+.btn-secondary {
+  @apply bg-white text-black border border-zinc-200 px-8 py-4 font-bold rounded-xl hover:bg-zinc-50 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 shadow-sm;
+}
+
+.project-card {
+  @apply bg-white rounded-[2rem] border border-zinc-200/60 shadow-sm hover:shadow-2xl hover:shadow-emerald-900/5 transition-all duration-500 overflow-hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-[var(--background)];
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-200 rounded-full hover:bg-zinc-300 transition-colors;
+}
