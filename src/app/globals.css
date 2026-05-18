@@ -3,13 +3,23 @@
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+
+  --color-system-lime: #CCFF00;
+  --color-system-lime-dark: #AACC00;
+
+  --animate-marquee: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 :root {
   --background: #fdfdfc;
   --foreground: #1a1a18;
-  --emerald-primary: #059669;
-  --forest-deep: #1b4332;
+  --emerald-primary: #CCFF00;
+  --forest-deep: #CCFF00;
   --accent-cream: #f9f7f2;
 }
 
@@ -38,13 +48,11 @@
   @apply bg-white rounded-[2rem] border border-zinc-200/60 shadow-sm hover:shadow-2xl hover:shadow-emerald-900/5 transition-all duration-500 overflow-hidden;
 }
 
-/* Custom Scrollbar */
+/* Hide Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  display: none;
 }
-::-webkit-scrollbar-track {
-  @apply bg-[var(--background)];
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-zinc-200 rounded-full hover:bg-zinc-300 transition-colors;
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -1,0 +1,217 @@
+     1|<!DOCTYPE html>
+     2|<html lang="en">
+     3|<head>
+     4|    <meta charset="UTF-8">
+     5|    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|    <title>TRESHNANDA // INDUSTRIAL BRUTALIST</title>
+     7|    <script src="https://cdn.tailwindcss.com"></script>
+     8|    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=JetBrains+Mono:wght@400;700&family=Pinyon+Script&display=swap" rel="stylesheet">
+     9|    <style>
+    10|        :root {
+    11|            --paper: #F9F7F2;
+    12|            --ink: #1B4332;
+    13|            --emerald: #059669;
+    14|        }
+    15|        body {
+    16|            background-color: var(--paper);
+    17|            color: var(--ink);
+    18|            font-family: 'Inter', sans-serif;
+    19|            overflow-x: hidden;
+    20|            margin: 0;
+    21|        }
+    22|        .noise {
+    23|            position: fixed;
+    24|            top: 0; left: 0; width: 100%; height: 100%;
+    25|            pointer-events: none;
+    26|            opacity: 0.04;
+    27|            z-index: 9999;
+    28|            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3BaseFilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/feTurbulence%3E%3C/baseFilter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    29|        }
+    30|        .mono { font-family: 'JetBrains Mono', monospace; }
+    31|        .pinyon { font-family: 'Pinyon Script', cursive; }
+    32|        
+    33|        .brutalist-border { border: 2px solid var(--ink); }
+    34|        .brutalist-border-t { border-top: 2px solid var(--ink); }
+    35|        .brutalist-border-b { border-bottom: 2px solid var(--ink); }
+    36|        .brutalist-border-l { border-left: 2px solid var(--ink); }
+    37|        .brutalist-border-r { border-right: 2px solid var(--ink); }
+    38|
+    39|        /* Marquee Animation */
+    40|        @keyframes marquee {
+    41|            0% { transform: translateX(0); }
+    42|            100% { transform: translateX(-50%); }
+    43|        }
+    44|        .marquee-content {
+    45|            display: flex; white-space: nowrap; animation: marquee 20s linear infinite;
+    46|        }
+    47|        
+    48|        .card:hover { background-color: rgba(27, 67, 50, 0.05); }
+    49|    </style>
+    50|</head>
+    51|<body>
+    52|    <div class="noise"></div>
+    53|    
+    54|    <div class="min-h-screen flex flex-col">
+    55|        <!-- Header HUD -->
+    56|        <div class="grid grid-cols-1 md:grid-cols-4 brutalist-border-b">
+    57|            <div class="p-4 brutalist-border-r flex flex-col gap-1">
+    58|                <span class="mono text-[8px] font-bold opacity-40 uppercase">System_Status</span>
+    59|                <div class="flex items-center gap-2">
+    60|                    <div class="w-2 h-2 bg-[var(--emerald)] rounded-full animate-pulse"></div>
+    61|                    <span class="mono text-[10px] font-bold">OPERATIONAL // 100%</span>
+    62|                </div>
+    63|            </div>
+    64|            <div class="p-4 brutalist-border-r col-span-2 flex items-center justify-center">
+    65|                 <div class="mono text-[10px] font-bold tracking-[0.5em] opacity-40">TRESHNANDA.ARCHITECTURE</div>
+    66|            </div>
+    67|            <div class="p-4 flex flex-col items-end gap-1">
+    68|                <span class="mono text-[8px] font-bold opacity-40 uppercase">Local_Time</span>
+    69|                <span id="clock" class="mono text-[10px] font-bold">--:--:--</span>
+    70|            </div>
+    71|        </div>
+    72|
+    73|        <!-- Billboard Hero -->
+    74|        <section class="pt-24 pb-12 px-6 brutalist-border-b">
+    75|            <div class="max-w-7xl mx-auto">
+    76|                <div class="flex items-baseline gap-0">
+    77|                    <span class="pinyon text-9xl leading-[0.5] text-[var(--emerald)] translate-y-4">T</span>
+    78|                    <span class="font-black text-7xl tracking-tighter uppercase">reshnanda</span>
+    79|                </div>
+    80|                <div class="mt-8 grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+    81|                    <div class="md:col-span-8">
+    82|                        <h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
+    83|                            Building systems that <br/>
+    84|                            <span class="text-[var(--emerald)] underline decoration-ink/20 italic font-serif">eliminate</span> manual work.
+    85|                        </h1>
+    86|                    </div>
+    87|                    <div class="md:col-span-4 p-6 brutalist-border bg-[var(--paper)] shadow-[12px_12px_0px_var(--ink)]">
+    88|                        <p class="mono text-xs font-bold leading-relaxed">
+    89|                            [ARCHITECTURE_PRINCIPLE]: <br/>
+    90|                            Zero-debt engineering. Autonomous intelligence. High-fidelity tactile interfaces for the non-technical elite.
+    91|                        </p>
+    92|                    </div>
+    93|                </div>
+    94|            </div>
+    95|        </section>
+    96|
+    97|        <div class="w-full brutalist-border-b bg-[var(--ink)] text-[var(--paper)] py-4 overflow-hidden">
+    98|            <div class="marquee-content font-black uppercase text-4xl tracking-tighter">
+    99|                <span class="mx-8">SYSTEM ARCHITECT // BUSINESS AUTOMATION // AI ENGINEER // </span>
+   100|                <span class="mx-8">SYSTEM ARCHITECT // BUSINESS AUTOMATION // AI ENGINEER // </span>
+   101|                <span class="mx-8">SYSTEM ARCHITECT // BUSINESS AUTOMATION // AI ENGINEER // </span>
+   102|                <span class="mx-8">SYSTEM ARCHITECT // BUSINESS AUTOMATION // AI ENGINEER // </span>
+   103|            </div>
+   104|        </div>
+   105|
+   106|        <!-- Content Grid -->
+   107|        <section class="grid grid-cols-1 md:grid-cols-3 flex-1 min-h-[600px]">
+   108|            <div class="p-12 brutalist-border-r flex flex-col gap-12">
+   109|                <div class="flex flex-col gap-4">
+   110|                    <span class="mono text-[10px] font-bold opacity-40 uppercase">01 / Selected_Architecture</span>
+   111|                    <h2 class="text-5xl font-black tracking-tighter uppercase">Work</h2>
+   112|                </div>
+   113|                <p class="text-lg font-medium opacity-60">
+   114|                    My approach is industrial. I don't build features; I architect autonomous departments.
+   115|                </p>
+   116|                <div class="mt-auto">
+   117|                    <button class="w-full py-6 bg-[var(--ink)] text-[var(--paper)] font-black uppercase tracking-widest text-sm active:translate-y-1 transition-transform">
+   118|                        Initiate Sequence
+   119|                    </button>
+   120|                </div>
+   121|            </div>
+   122|            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-0">
+   123|                <!-- Project 1 -->
+   124|                <div class="card brutalist-border p-6 flex flex-col gap-4 relative group cursor-pointer transition-colors">
+   125|                    <div class="flex justify-between items-start">
+   126|                        <span class="mono text-[10px] uppercase font-bold tracking-widest opacity-60">REF_ID: GASTERUS_01</span>
+   127|                        <div class="w-3 h-3 brutalist-border bg-[var(--emerald)] group-hover:scale-150 transition-transform"></div>
+   128|                    </div>
+   129|                    <div>
+   130|                        <span class="mono text-[10px] text-[var(--emerald)] font-bold uppercase tracking-[0.3em]">Logistics Automation</span>
+   131|                        <h3 class="text-3xl font-black tracking-tighter uppercase mt-1">GasTerus AI</h3>
+   132|                    </div>
+   133|                    <p class="text-sm font-medium leading-relaxed opacity-80">Autonomous agent fleet for gas distribution logistics and CRM automation.</p>
+   134|                    <div class="mt-auto pt-4 flex justify-between items-end">
+   135|                        <span class="mono text-[10px] font-bold">LATEST_DEPLOY: 2026.05</span>
+   136|                        <div class="w-10 h-10 brutalist-border flex items-center justify-center bg-[var(--ink)] text-[var(--paper)] transition-transform group-hover:translate-x-1">
+   137|                            →
+   138|                        </div>
+   139|                    </div>
+   140|                </div>
+   141|                <!-- Project 2 -->
+   142|                <div class="card brutalist-border p-6 flex flex-col gap-4 relative group cursor-pointer transition-colors">
+   143|                    <div class="flex justify-between items-start">
+   144|                        <span class="mono text-[10px] uppercase font-bold tracking-widest opacity-60">REF_ID: ROYAL_03</span>
+   145|                        <div class="w-3 h-3 brutalist-border bg-[var(--emerald)] group-hover:scale-150 transition-transform"></div>
+   146|                    </div>
+   147|                    <div>
+   148|                        <span class="mono text-[10px] text-[var(--emerald)] font-bold uppercase tracking-[0.3em]">POS Architecture</span>
+   149|                        <h3 class="text-3xl font-black tracking-tighter uppercase mt-1">Royal Engine</h3>
+   150|                    </div>
+   151|                    <p class="text-sm font-medium leading-relaxed opacity-80">High-fidelity workshop management system with non-technical UX focus.</p>
+   152|                    <div class="mt-auto pt-4 flex justify-between items-end">
+   153|                        <span class="mono text-[10px] font-bold">LATEST_DEPLOY: 2026.04</span>
+   154|                        <div class="w-10 h-10 brutalist-border flex items-center justify-center bg-[var(--ink)] text-[var(--paper)] transition-transform group-hover:translate-x-1">
+   155|                            →
+   156|                        </div>
+   157|                    </div>
+   158|                </div>
+   159|                <!-- Project 3 -->
+   160|                <div class="card brutalist-border p-6 flex flex-col gap-4 relative group cursor-pointer transition-colors">
+   161|                    <div class="flex justify-between items-start">
+   162|                        <span class="mono text-[10px] uppercase font-bold tracking-widest opacity-60">REF_ID: MANMADE_02</span>
+   163|                        <div class="w-3 h-3 brutalist-border bg-[var(--emerald)] group-hover:scale-150 transition-transform"></div>
+   164|                    </div>
+   165|                    <div>
+   166|                        <span class="mono text-[10px] text-[var(--emerald)] font-bold uppercase tracking-[0.3em]">Brand Intelligence</span>
+   167|                        <h3 class="text-3xl font-black tracking-tighter uppercase mt-1">Man/Made</h3>
+   168|                    </div>
+   169|                    <p class="text-sm font-medium leading-relaxed opacity-80">Data-driven supply chain and social engineering for clothing startup.</p>
+   170|                    <div class="mt-auto pt-4 flex justify-between items-end">
+   171|                        <span class="mono text-[10px] font-bold">LATEST_DEPLOY: 2026.03</span>
+   172|                        <div class="w-10 h-10 brutalist-border flex items-center justify-center bg-[var(--ink)] text-[var(--paper)] transition-transform group-hover:translate-x-1">
+   173|                            →
+   174|                        </div>
+   175|                    </div>
+   176|                </div>
+   177|                <!-- Stats -->
+   178|                <div class="brutalist-border p-12 flex items-center justify-center bg-[var(--ink)] text-[var(--paper)]">
+   179|                    <div class="text-center">
+   180|                        <div class="text-6xl font-black tracking-tighter">100+</div>
+   181|                        <div class="mono text-[10px] font-bold tracking-widest opacity-60 mt-2 uppercase">Agents_Deployed</div>
+   182|                    </div>
+   183|                </div>
+   184|            </div>
+   185|        </section>
+   186|
+   187|        <!-- Footer Billboard -->
+   188|        <footer class="brutalist-border-t p-24 text-center">
+   189|             <div class="mono text-[10px] font-bold opacity-40 mb-12 uppercase">Terminating_Session</div>
+   190|             <h2 class="text-7xl md:text-[10rem] font-black tracking-tighter uppercase leading-none mb-12">
+   191|                Let's Architect.
+   192|             </h2>
+   193|             <div class="flex justify-center gap-12">
+   194|                <a href="#" class="mono text-xs font-bold uppercase tracking-widest border-b-2 border-transparent hover:border-[var(--emerald)] transition-colors">Github</a>
+   195|                <a href="#" class="mono text-xs font-bold uppercase tracking-widest border-b-2 border-transparent hover:border-[var(--emerald)] transition-colors">Linkedin</a>
+   196|                <a href="#" class="mono text-xs font-bold uppercase tracking-widest border-b-2 border-transparent hover:border-[var(--emerald)] transition-colors">WhatsApp</a>
+   197|             </div>
+   198|        </footer>
+   199|    </div>
+   200|
+   201|    <script>
+   202|        function updateClock() {
+   203|            const now = new Date();
+   204|            const timeString = now.toLocaleTimeString();
+   205|            document.getElementById('clock').textContent = timeString;
+   206|        }
+   207|        setInterval(updateClock, 1000);
+   208|        updateClock();
+   209|    </script>
+   210|
+    <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; gap: 10px; background: rgba(0,0,0,0.8); padding: 8px 16px; border-radius: 50px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+        <button onclick="window.location.href='index.html'" style="color: white; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: bold; text-transform: uppercase; border: none; background: none; cursor: pointer; padding: 4px 8px; border-radius: 4px; opacity: 0.5;">Swiss</button>
+        <button onclick="window.location.href='brutalist.html'" style="color: white; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: bold; text-transform: uppercase; border: none; background: none; cursor: pointer; padding: 4px 8px; border-radius: 4px; background: #059669;">Brutalist (Active)</button>
+    </div>
+</body>
+   211|</html>
+   212|

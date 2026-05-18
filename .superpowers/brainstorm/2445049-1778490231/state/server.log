@@ -1,0 +1,8 @@
+{"type":"server-started","port":13337,"host":"0.0.0.0","url_host":"viscomp.sinery.live","url":"http://viscomp.sinery.live:13337","screen_dir":"/root/treshnanda-portfolio/.superpowers/brainstorm/2445049-1778490231/content","state_dir":"/root/treshnanda-portfolio/.superpowers/brainstorm/2445049-1778490231/state"}
+{"type":"screen-added","file":"/root/treshnanda-portfolio/.superpowers/brainstorm/2445049-1778490231/content/index.html"}
+{"type":"screen-updated","file":"/root/treshnanda-portfolio/.superpowers/brainstorm/2445049-1778490231/content/index.html"}
+{"type":"screen-added","file":"/root/treshnanda-portfolio/.superpowers/brainstorm/2445049-1778490231/content/swiss.html"}
+{"type":"screen-added","file":"/root/treshnanda-portfolio/.superpowers/brainstorm/2445049-1778490231/content/brutalist.html"}
+{"type":"screen-updated","file":"/root/treshnanda-portfolio/.superpowers/brainstorm/2445049-1778490231/content/index.html"}
+{"type":"screen-updated","file":"/root/treshnanda-portfolio/.superpowers/brainstorm/2445049-1778490231/content/brutalist.html"}
+{"type":"server-stopped","reason":"idle timeout"}

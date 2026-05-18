@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRESHNANDA // SWISS EDITORIAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper: #F9F7F2;
+            --ink: #1B4332;
+            --emerald: #059669;
+        }
+        body {
+            background-color: var(--paper);
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        .editorial-grid {
+            display: grid;
+            grid-template-cols: repeat(12, 1fr);
+            gap: 2rem;
+        }
+        .serif { font-family: 'Playfair Display', serif; }
+        .hanging-indent { text-indent: -2rem; padding-left: 2rem; }
+        
+        .divider { height: 1px; background-color: var(--ink); opacity: 0.1; width: 100%; }
+        
+        .super-title {
+            font-size: clamp(3rem, 12vw, 12rem);
+            line-height: 0.85;
+            letter-spacing: -0.04em;
+            font-weight: 900;
+        }
+        
+        .caption {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            opacity: 0.5;
+        }
+        
+        .project-row {
+            border-bottom: 1px solid rgba(27, 67, 50, 0.1);
+            transition: all 0.4s ease;
+        }
+        .project-row:hover {
+            background-color: white;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+    </style>
+</head>
+<body class="p-8 md:p-16">
+    <header class="editorial-grid mb-32">
+        <div class="col-span-12 md:col-span-4">
+            <div class="caption mb-4">Architecture & Systems / 2026</div>
+            <h1 class="text-3xl font-black tracking-tighter uppercase leading-none">Treshnanda Systems</h1>
+        </div>
+        <div class="col-span-12 md:col-span-4 md:col-start-9 text-right md:text-left">
+            <div class="caption mb-4">Coordinates</div>
+            <p class="text-sm font-medium leading-relaxed">
+                6.2088° S, 106.8456° E<br/>
+                Jakarta, ID / Remote_Global
+            </p>
+        </div>
+    </header>
+
+    <main>
+        <section class="mb-48">
+            <div class="caption mb-12">Statement_01</div>
+            <h2 class="super-title uppercase mb-16">
+                Engineering<br/>
+                <span class="serif italic font-normal">Autonomous</span><br/>
+                Intelligence.
+            </h2>
+            <div class="editorial-grid">
+                <div class="col-span-12 md:col-span-5 md:col-start-7">
+                    <p class="text-xl md:text-2xl font-medium leading-snug tracking-tight">
+                        I architect high-fidelity business systems that eliminate manual overhead. Zero-debt engineering meets elite design.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-48">
+            <div class="caption mb-8">Index / Selected_Works</div>
+            <div class="divider mb-0"></div>
+            
+            {/* Project List */}
+            <div class="project-row py-12 flex flex-col md:flex-row justify-between items-baseline group cursor-pointer">
+                <div class="flex items-baseline gap-8">
+                    <span class="mono opacity-30 text-xs">01</span>
+                    <h3 class="text-4xl md:text-6xl font-black tracking-tighter uppercase group-hover:italic transition-all">GasTerus AI</h3>
+                </div>
+                <div class="max-w-xs text-right mt-4 md:mt-0">
+                    <div class="caption mb-1">Logistics_Core</div>
+                    <p class="text-sm opacity-60">Autonomous fleet orchestration for high-volume distribution.</p>
+                </div>
+            </div>
+
+            <div class="project-row py-12 flex flex-col md:flex-row justify-between items-baseline group cursor-pointer">
+                <div class="flex items-baseline gap-8">
+                    <span class="mono opacity-30 text-xs">02</span>
+                    <h3 class="text-4xl md:text-6xl font-black tracking-tighter uppercase group-hover:italic transition-all">Royal Engine</h3>
+                </div>
+                <div class="max-w-xs text-right mt-4 md:mt-0">
+                    <div class="caption mb-1">Workshop_OS</div>
+                    <p class="text-sm opacity-60">Tactile POS interface for non-technical workshop staff.</p>
+                </div>
+            </div>
+
+            <div class="project-row py-12 flex flex-col md:flex-row justify-between items-baseline group cursor-pointer">
+                <div class="flex items-baseline gap-8">
+                    <span class="mono opacity-30 text-xs">03</span>
+                    <h3 class="text-4xl md:text-6xl font-black tracking-tighter uppercase group-hover:italic transition-all">Man/Made</h3>
+                </div>
+                <div class="max-w-xs text-right mt-4 md:mt-0">
+                    <div class="caption mb-1">Brand_Intelligence</div>
+                    <p class="text-sm opacity-60">Social engineering and supply chain automation for apparel.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-48 editorial-grid">
+            <div class="col-span-12 md:col-span-4">
+                <div class="caption mb-8">Principles</div>
+                <ul class="flex flex-col gap-8">
+                    <li class="hanging-indent text-lg font-bold uppercase tracking-tight">
+                        <span class="serif italic font-normal mr-2">I.</span> Systems are built to be invisible.
+                    </li>
+                    <li class="hanging-indent text-lg font-bold uppercase tracking-tight">
+                        <span class="serif italic font-normal mr-2">II.</span> High-fidelity is a functional requirement.
+                    </li>
+                    <li class="hanging-indent text-lg font-bold uppercase tracking-tight">
+                        <span class="serif italic font-normal mr-2">III.</span> Zero-debt is the only sustainable path.
+                    </li>
+                </ul>
+            </div>
+            <div class="col-span-12 md:col-span-6 md:col-start-7 bg-[var(--ink)] text-[var(--paper)] p-12">
+                <div class="caption text-white/40 mb-12">Action</div>
+                <h3 class="text-5xl font-black tracking-tighter uppercase leading-none mb-12">
+                    Initiate<br/>Sequence.
+                </h3>
+                <a href="https://wa.me/6287852986638" class="text-sm font-bold uppercase tracking-widest border-b border-white/20 hover:border-white transition-all pb-2">
+                    Contact via WhatsApp →
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="editorial-grid pt-12 border-t border-[var(--ink)] border-opacity-10">
+        <div class="col-span-6">
+            <p class="caption">© 2026 Treshnanda Architecture</p>
+        </div>
+        <div class="col-span-6 text-right flex justify-end gap-8">
+            <a href="#" class="caption hover:opacity-100 transition-opacity">Github</a>
+            <a href="#" class="caption hover:opacity-100 transition-opacity">Linkedin</a>
+            <a href="#" class="caption hover:opacity-100 transition-opacity">Mail</a>
+        </div>
+    </footer>
+</body>
+</html>
