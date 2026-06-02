@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { isAuthenticated } from "@/actions/admin";
 
@@ -17,6 +17,8 @@ export async function POST(req: Request) {
     }
 
     const urls: string[] = [];
+    const uploadDir = process.env.UPLOAD_DIR || "/var/www/treshnanda-portfolio-uploads";
+    await mkdir(uploadDir, { recursive: true });
 
     for (const file of files) {
       const bytes = await file.arrayBuffer();
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
       // Create a unique filename
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       const filename = uniqueSuffix + "-" + file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-      const path = join(process.cwd(), "public/uploads", filename);
+      const path = join(uploadDir, filename);
 
       await writeFile(path, buffer);
       urls.push(`/uploads/${filename}`);
