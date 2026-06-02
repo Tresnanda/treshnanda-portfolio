@@ -34,3 +34,15 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Production uploads
+
+CMS uploads must live outside the Next.js build output so newly uploaded files keep working after `next build`/`next start` and do not depend on files bundled at build time.
+
+Production uses:
+
+- `UPLOAD_DIR=/var/www/treshnanda-portfolio-uploads`
+- nginx `location /uploads/` aliasing that directory
+- the upload API returns public URLs as `/uploads/<filename>`
+
+When deploying on a VPS, create the upload directory, make it readable by nginx, and keep the nginx alias in sync with `UPLOAD_DIR`.
