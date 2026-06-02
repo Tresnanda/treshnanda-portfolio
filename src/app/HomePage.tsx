@@ -133,15 +133,17 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                         aria-hidden="true"
                         src={allImages[currentImageIndex]}
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-30"
+                        className="absolute inset-0 w-full h-full object-cover scale-125 blur-3xl opacity-70 saturate-150"
                       />
+                      <div className="absolute inset-0 bg-black/35 backdrop-blur-sm" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/40" />
                       <motion.img 
                         key={currentImageIndex}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         src={allImages[currentImageIndex]} 
                         alt={selectedProject.title}
-                        className="relative z-[1] w-full h-full object-contain"
+                        className="relative z-[1] w-full h-full object-contain drop-shadow-2xl"
                       />
                     </>
                   ) : (
@@ -151,16 +153,18 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                   )}
                   
                   {allImages.length > 1 && (
-                    <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                    <div className="absolute inset-y-0 left-0 right-0 z-20 flex items-center justify-between px-4 pointer-events-none">
                        <button 
+                         aria-label="Previous project image"
                          onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((currentImageIndex - 1 + allImages.length) % allImages.length); }}
-                         className="w-10 h-10 bg-black/50 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-black transition-colors"
+                         className="pointer-events-auto w-11 h-11 bg-white/15 border border-white/25 backdrop-blur-xl text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-system-lime hover:text-black hover:border-system-lime transition-colors"
                        >
                           <ChevronRight className="w-5 h-5 rotate-180" />
                        </button>
                        <button 
+                         aria-label="Next project image"
                          onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((currentImageIndex + 1) % allImages.length); }}
-                         className="w-10 h-10 bg-black/50 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-black transition-colors"
+                         className="pointer-events-auto w-11 h-11 bg-white/15 border border-white/25 backdrop-blur-xl text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-system-lime hover:text-black hover:border-system-lime transition-colors"
                        >
                           <ChevronRight className="w-5 h-5" />
                        </button>
