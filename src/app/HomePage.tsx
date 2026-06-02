@@ -126,15 +126,24 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                   <X className="w-6 h-6" />
                 </button>
 
-                <div className="w-full md:w-1/2 h-64 md:h-auto bg-zinc-100 relative group/img">
+                <div className="w-full md:w-1/2 h-64 md:h-auto bg-zinc-950 relative group/img overflow-hidden">
                   {allImages[currentImageIndex] ? (
-                    <motion.img 
-                      key={currentImageIndex}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      src={allImages[currentImageIndex]} 
-                      className="w-full h-full object-cover"
-                    />
+                    <>
+                      <img
+                        aria-hidden="true"
+                        src={allImages[currentImageIndex]}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-30"
+                      />
+                      <motion.img 
+                        key={currentImageIndex}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        src={allImages[currentImageIndex]} 
+                        alt={selectedProject.title}
+                        className="relative z-[1] w-full h-full object-contain"
+                      />
+                    </>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-zinc-200">
                        <Layout className="w-20 h-20" />
@@ -423,9 +432,9 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                     onClick={() => setSelectedProject(project)}
                     className="group cursor-pointer text-left"
                   >
-                    <div className="aspect-[2/1] md:aspect-[16/10] bg-zinc-100 rounded-xl md:rounded-2xl mb-2 md:mb-3 overflow-hidden relative border border-zinc-50 shadow-sm hover:shadow-xl transition-all duration-700">
+                    <div className="aspect-[2/1] md:aspect-[16/10] bg-zinc-950 rounded-xl md:rounded-2xl mb-2 md:mb-3 overflow-hidden relative border border-zinc-50 shadow-sm hover:shadow-xl transition-all duration-700">
                       {project.imageUrl ? (
-                         <img src={project.imageUrl} className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={project.title} />
+                         <img src={project.imageUrl} className="absolute inset-0 w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-700" alt={project.title} />
                       ) : (
                         <div className="absolute inset-0 bg-white flex items-center justify-center">
                            <span className="text-[8px] font-black uppercase tracking-[0.6em] text-zinc-200">View Project</span>

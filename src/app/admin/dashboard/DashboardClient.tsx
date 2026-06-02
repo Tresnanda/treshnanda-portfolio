@@ -198,16 +198,24 @@ export default function DashboardClient({
                               </label>
 
                               {localImages.length > 0 && (
-                                 <div className="grid grid-cols-3 gap-2 mt-4">
-                                    {localImages.map((url, idx) => (
-                                       <div key={idx} className={`relative aspect-square rounded-lg overflow-hidden group border-2 ${localImageUrl === url ? 'border-system-lime' : 'border-transparent'}`}>
-                                          <img src={url} className="w-full h-full object-cover" />
-                                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                                             <button type="button" onClick={() => setLocalImageUrl(url)} className="p-1 bg-white text-black rounded-md hover:bg-system-lime transition-colors"><ShieldCheck className="w-3 h-3" /></button>
-                                             <button type="button" onClick={() => removeImage(url)} className="p-1 bg-white text-black rounded-md hover:bg-red-500 transition-colors"><Trash2 className="w-3 h-3" /></button>
+                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                                    {localImages.map((url, idx) => {
+                                       const isCover = localImageUrl === url;
+                                       return (
+                                          <div key={idx} className={"relative aspect-video rounded-xl overflow-hidden group border-2 bg-zinc-950 " + (isCover ? "border-system-lime ring-2 ring-system-lime/30" : "border-zinc-100")}>
+                                             <img src={url} alt={`Project upload ${idx + 1}`} className="w-full h-full object-contain" />
+                                             {isCover && (
+                                                <span className="absolute left-2 top-2 px-2 py-1 bg-system-lime text-black rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg">Cover</span>
+                                             )}
+                                             <div className="absolute inset-x-2 bottom-2 flex items-center justify-between gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                                <button type="button" onClick={() => setLocalImageUrl(url)} className={"flex-1 px-2 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-colors " + (isCover ? "bg-system-lime text-black" : "bg-white text-black hover:bg-system-lime")}>
+                                                   {isCover ? "Cover" : "Set cover"}
+                                                </button>
+                                                <button type="button" aria-label="Remove image" onClick={() => removeImage(url)} className="p-1.5 bg-white text-black rounded-lg hover:bg-red-500 hover:text-white transition-colors"><Trash2 className="w-3 h-3" /></button>
+                                             </div>
                                           </div>
-                                       </div>
-                                    ))}
+                                       );
+                                    })}
                                  </div>
                               )}
                            </div>
@@ -240,7 +248,7 @@ export default function DashboardClient({
                  <div className="space-y-6 text-left">
                     <div className="aspect-video w-full bg-zinc-50 rounded-2xl overflow-hidden mb-8 border border-zinc-100 shadow-inner relative">
                         {localImageUrl ? (
-                           <img src={localImageUrl} className="w-full h-full object-cover transition-all duration-500" />
+                           <img src={localImageUrl} alt="Selected cover preview" className="w-full h-full object-contain bg-zinc-950 transition-all duration-500" />
                         ) : (
                            <div className="w-full h-full flex items-center justify-center text-zinc-200 uppercase font-black tracking-widest text-[10px]">No Imagery</div>
                         )}
@@ -362,7 +370,7 @@ export default function DashboardClient({
             {initialProjects.map((p: any) => (
               <div key={p.id} className="group bg-white border border-zinc-100 rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col min-h-[350px] relative transition-all hover:shadow-2xl">
                 <div className="h-44 bg-zinc-50 relative overflow-hidden">
-                  {p.imageUrl && <img src={p.imageUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />}
+                  {p.imageUrl && <img src={p.imageUrl} alt={p.title} className="w-full h-full object-contain bg-zinc-950 grayscale group-hover:grayscale-0 transition-all duration-700" />}
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
                     <button onClick={() => openEditor(p)} className="p-3 bg-white text-black rounded-full hover:scale-110 transition-transform shadow-xl"><Edit2 className="w-5 h-5" /></button>
                   </div>
