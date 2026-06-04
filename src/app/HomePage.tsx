@@ -429,18 +429,6 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                   </motion.div>
                 </div>
 
-                {/* Tech Stacks - Contained */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.5, duration: 1, ease: ease.out }}
-                  className="mt-24 w-full pt-10 border-t border-white/5"
-                >
-                  <p className="text-center text-[9px] font-black uppercase tracking-[0.5em] text-zinc-600 mb-6">Stack</p>
-                  <VelocityMarquee
-                    items={['Next.js', 'TypeScript', 'Supabase', 'pgvector', 'Hono', 'Python', 'React Native', 'Docker']}
-                  />
-                </motion.div>
               </div>
             </div>
 
@@ -452,6 +440,14 @@ export default function HomePage({ initialProjects, userProfile }: any) {
             <div className="absolute bottom-10 right-10 hidden md:flex items-center gap-4">
                 <StatusPill label="Available for work" />
             </div>
+          </section>
+
+          {/* STACK — full-bleed marquee band */}
+          <section className="relative bg-[#0A0A0A] py-14 md:py-20 border-t border-white/5 overflow-hidden">
+            <p className="text-center text-[9px] font-black uppercase tracking-[0.5em] text-zinc-600 mb-8">Stack</p>
+            <VelocityMarquee
+              items={['Next.js', 'TypeScript', 'Supabase', 'pgvector', 'Hono', 'Python', 'React Native', 'Docker']}
+            />
           </section>
 
           {/* PROJECT GRID */}
