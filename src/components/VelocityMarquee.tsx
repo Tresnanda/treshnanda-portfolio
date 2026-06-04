@@ -23,7 +23,7 @@ import {
  */
 export default function VelocityMarquee({
   items,
-  baseVelocity = -2,
+  baseVelocity = -4,
 }: {
   items: string[];
   baseVelocity?: number;
