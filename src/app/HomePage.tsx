@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowRight, Mail, ExternalLink, Menu, X, ChevronRight, Layout } from "lucide-react";
 import Link from "next/link";
 import SmoothScroll from "@/components/SmoothScroll";
 import Magnetic from "@/components/Magnetic";
+import ShaderBackground from "@/components/ShaderBackground";
+import VelocityMarquee from "@/components/VelocityMarquee";
+import Reveal from "@/components/Reveal";
+import StatusPill from "@/components/StatusPill";
+import { ease, spring } from "@/lib/motion";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -17,11 +22,27 @@ const containerVariants = {
 
 const itemVariants: any = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } 
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: ease.out }
   }
+};
+
+// Each billboard letter rises from a bottom clip — clip-path doesn't touch the
+// heavy scale transform on the span, so the two never fight.
+const letterReveal: any = {
+  hidden: { opacity: 0, clipPath: "inset(0 0 100% 0)" },
+  visible: {
+    opacity: 1,
+    clipPath: "inset(0 0 0% 0)",
+    transition: { duration: 0.9, ease: ease.drawer }
+  }
+};
+
+const letterParent: any = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.35 } }
 };
 
 export default function HomePage({ initialProjects, userProfile }: any) {
@@ -31,16 +52,18 @@ export default function HomePage({ initialProjects, userProfile }: any) {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imgError, setImgError] = useState(false);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
-    const timer = setTimeout(() => setIsLoading(false), 2000);
+    // Shorter hold; the preloader is a first-impression delight, not a tax.
+    const timer = setTimeout(() => setIsLoading(false), reduce ? 400 : 1500);
     return () => {
       window.removeEventListener("scroll", handleScroll);
       clearTimeout(timer);
     };
-  }, []);
+  }, [reduce]);
 
   useEffect(() => {
     if (selectedProject) {
@@ -62,9 +85,20 @@ export default function HomePage({ initialProjects, userProfile }: any) {
 
   const hero = {
     name: userProfile?.name || "Treshnanda",
-    role: userProfile?.role || "AI SYSTEMS & BUSINESS AUTOMATION ENGINEER",
-    headline: userProfile?.heroHeadline || "I build systems that eliminate manual work.",
-    subheadline: userProfile?.heroSubheadline || "Engineering autonomous intelligence.",
+    role: userProfile?.role || "AI SYSTEMS & AUTOMATION ENGINEER",
+    headline: userProfile?.heroHeadline || "I build AI systems that eliminate repetitive work.",
+    subheadline: userProfile?.heroSubheadline || "AI systems & automation engineer.",
+  };
+
+  // Cards: variant-level transition controls the entrance; the component-level
+  // spring (below) drives hover/tap. Movement is dropped under reduced motion.
+  const cardVariants: any = {
+    hidden: { opacity: 0, y: reduce ? 0 : 24 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, ease: ease.out, delay: Math.min(i * 0.08, 0.5) },
+    }),
   };
 
   return (
@@ -74,9 +108,9 @@ export default function HomePage({ initialProjects, userProfile }: any) {
         {/* Preloader */}
         <AnimatePresence>
           {isLoading && (
-            <motion.div 
+            <motion.div
               exit={{ y: "-100%" }}
-              transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 0.9, ease: ease.drawer }}
               className="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-center"
             >
               <motion.div 
@@ -238,7 +272,7 @@ export default function HomePage({ initialProjects, userProfile }: any) {
               ))}
               <Magnetic>
                 <div>
-                  <Link href="mailto:hi@treshnanda.tech" className={`px-8 py-3 rounded-full text-[10px] font-black transition-all flex items-center gap-3 ${isScrolled ? "bg-black text-white hover:bg-system-lime-dark" : "bg-white text-black hover:bg-system-lime"}`}>
+                  <Link href="https://wa.me/6287852986638" target="_blank" className={`press px-8 py-3 rounded-full text-[10px] font-black transition-colors flex items-center gap-3 ${isScrolled ? "bg-black text-white hover:bg-system-lime-dark" : "bg-white text-black hover:bg-system-lime"}`}>
                     LET'S TALK <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
@@ -281,9 +315,8 @@ export default function HomePage({ initialProjects, userProfile }: any) {
         <main className="bg-[#0A0A0A] text-white">
           {/* BRUTALIST BILLBOARD HERO - SCALED DOWN */}
           <section className="relative h-screen flex flex-col items-center justify-center pt-20 pb-10 overflow-hidden">
-            {/* Background Grain/Noise */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" 
-                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/feTurbulence%3E%3C/baseFilter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
+            {/* Flowing mesh-gradient shader (Paper Shaders) sits behind everything */}
+            <ShaderBackground />
 
             <div className="w-full relative z-10 flex flex-col items-center h-full justify-center">
               {/* Massive Billboard Name - Stretched fully horizontal */}
@@ -294,21 +327,27 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                   transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                   className="flex flex-col items-center w-full"
                 >
-                  <div className="w-full flex justify-between items-center select-none py-32 md:py-48 px-0">
+                  <motion.div
+                    variants={letterParent}
+                    initial="hidden"
+                    animate="visible"
+                    className="w-full flex justify-between items-center select-none py-32 md:py-48 px-0"
+                  >
                     {"NANDA".split("").map((letter, i) => (
-                      <span 
-                        key={i} 
-                        className="block font-black leading-none uppercase text-[12vw] md:text-[3vw] scale-y-[3.5] scale-x-[2.2] md:scale-y-[11.0] md:scale-x-[8.5] transition-transform duration-700" 
-                        style={{ 
+                      <motion.span
+                        key={i}
+                        variants={reduce ? itemVariants : letterReveal}
+                        className="block font-black leading-none uppercase text-[12vw] md:text-[3vw] scale-y-[3.5] scale-x-[2.2] md:scale-y-[11.0] md:scale-x-[8.5]"
+                        style={{
                           transformOrigin: 'center',
                           width: '20%',
                           textAlign: 'center'
                         }}
                       >
                         {letter}
-                      </span>
+                      </motion.span>
                     ))}
-                  </div>
+                  </motion.div>
                   
                   {/* The Danny Petty Style Lime Bar - Cutting through from Bottom-Left to Top-Right */}
                   <div 
@@ -327,37 +366,40 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                     >
                       {[1, 2, 3, 4, 5].map((n) => (
                         <div key={n} className="flex items-center gap-12 text-black font-black text-[12px] md:text-[18px] uppercase tracking-[0.2em] px-6">
-                          <span>AI Systems & Business Automation ENGINEER</span>
+                          <span>AI Systems & Automation</span>
                           <span className="text-2xl">/</span>
-                          <span>Architecting Autonomous Departments</span>
+                          <span>Workflow & Process Automation</span>
                           <span className="text-2xl">/</span>
-                          <span>Zero-Debt Engineering</span>
+                          <span>Full-Stack Engineering</span>
                           <span className="text-2xl">/</span>
                         </div>
                       ))}
                     </motion.div>
                   </div>
 
-                  {/* Circular Profile Overlay - Better mobile scaling */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.8 }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 md:w-28 md:h-28 rounded-full border-4 md:border-8 border-[#0A0A0A] overflow-hidden shadow-2xl z-40 bg-zinc-900 flex items-center justify-center"
-                  >
-                    {(userProfile?.avatarUrl && !imgError) ? (
-                       <img 
-                         src={userProfile.avatarUrl} 
-                         className="w-full h-full object-cover" 
-                         alt="" 
-                         onError={() => setImgError(true)}
-                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-zinc-500 italic font-serif">
-                         <span className="text-3xl md:text-3xl">N</span>
-                      </div>
-                    )}
-                  </motion.div>
+                  {/* Circular Profile Overlay — positioning stays on the wrapper so
+                      the spring pop (scale/opacity) never clobbers the centering. */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40">
+                    <motion.div
+                      initial={{ opacity: 0, scale: reduce ? 1 : 0.4 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={reduce ? { delay: 0.5, duration: 0.5 } : { delay: 0.7, ...spring.pop }}
+                      className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 md:border-8 border-[#0A0A0A] overflow-hidden shadow-2xl bg-zinc-900 flex items-center justify-center ring-1 ring-system-lime/30"
+                    >
+                      {(userProfile?.avatarUrl && !imgError) ? (
+                         <img
+                           src={userProfile.avatarUrl}
+                           className="w-full h-full object-cover"
+                           alt=""
+                           onError={() => setImgError(true)}
+                         />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-zinc-500 italic font-serif">
+                           <span className="text-3xl md:text-3xl">N</span>
+                        </div>
+                      )}
+                    </motion.div>
+                  </div>
                 </motion.div>
               </div>
 
@@ -368,35 +410,36 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1, duration: 0.8 }}
-                    className="text-[13px] md:text-xl text-zinc-500 font-medium leading-tight mb-8"
+                    className="text-[13px] md:text-xl text-zinc-400 font-medium leading-relaxed mb-8"
                   >
-                    Architecting autonomous departments to eliminate technical waste. 
-                    High-fidelity engineering for the zero-debt era.
+                    I design and build AI systems and automation that remove repetitive work,
+                    streamline operations, and help teams ship faster.
                   </motion.p>
                   
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 1.2, duration: 0.5 }}
+                    transition={{ delay: 1.2, duration: 0.5, ease: ease.out }}
                   >
-                    <Link href="https://wa.me/6287852986638" className="bg-white text-black px-8 py-4 md:px-10 md:py-5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-system-lime-dark hover:text-black transition-all shadow-xl active:scale-95 inline-block">
-                      Initiate Sequence
-                    </Link>
+                    <Magnetic strength={0.4}>
+                      <Link href="https://wa.me/6287852986638" className="press bg-white text-black px-8 py-4 md:px-10 md:py-5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-system-lime hover:text-black transition-colors shadow-xl inline-block">
+                        Start a Project
+                      </Link>
+                    </Magnetic>
                   </motion.div>
                 </div>
 
                 {/* Tech Stacks - Contained */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 1.5, duration: 1 }}
+                  transition={{ delay: 1.5, duration: 1, ease: ease.out }}
                   className="mt-24 w-full pt-10 border-t border-white/5"
                 >
-                  <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 grayscale opacity-20 hover:opacity-100 transition-opacity">
-                    {['Next.js', 'TypeScript', 'Supabase', 'pgvector', 'Hono', 'Python', 'React Native', 'Docker'].map((stack) => (
-                      <span key={stack} className="text-sm md:text-lg font-black tracking-tighter uppercase">{stack}</span>
-                    ))}
-                  </div>
+                  <p className="text-center text-[9px] font-black uppercase tracking-[0.5em] text-zinc-600 mb-6">Stack</p>
+                  <VelocityMarquee
+                    items={['Next.js', 'TypeScript', 'Supabase', 'pgvector', 'Hono', 'Python', 'React Native', 'Docker']}
+                  />
                 </motion.div>
               </div>
             </div>
@@ -406,52 +449,62 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                 <Link href="#" className="hover:text-system-lime transition-colors">Github</Link>
                 <Link href="#" className="hover:text-system-lime transition-colors">Linkedin</Link>
             </div>
-            <div className="absolute bottom-10 right-10 hidden md:flex items-center gap-4 mono text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                <span className="w-2 h-2 bg-system-lime rounded-full animate-pulse" />
-                System_Operational
+            <div className="absolute bottom-10 right-10 hidden md:flex items-center gap-4">
+                <StatusPill label="Available for work" />
             </div>
           </section>
 
-          {/* PROJECT GRID - ULTRA COMPACT */}
-          <section id="work" className="py-8 md:py-16 bg-white text-zinc-900 relative">
+          {/* PROJECT GRID */}
+          <section id="work" className="py-16 md:py-28 bg-white text-zinc-900 relative">
             <div className="max-w-7xl mx-auto px-6">
-              <div className="flex flex-col md:flex-row justify-between items-end mb-6 md:mb-8 border-b border-zinc-100 pb-4">
+              <Reveal as="div" className="flex flex-col md:flex-row justify-between items-end mb-10 md:mb-16 border-b border-zinc-100 pb-6">
                 <div className="text-left">
-                    <h2 className="text-2xl md:text-4xl font-black tracking-tighter mb-1 uppercase leading-none">Selected<br/>Works</h2>
-                    <p className="text-zinc-400 text-[9px] font-bold uppercase tracking-widest">Efficiency through architecture</p>
+                    <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-2 uppercase leading-[0.9]">Selected<br/>Works</h2>
+                    <p className="text-zinc-400 text-[10px] md:text-xs font-bold uppercase tracking-widest">Recent projects &amp; systems I&apos;ve built</p>
                 </div>
-                <div className="text-[8px] font-black text-system-lime bg-black px-4 py-1.5 rounded-full uppercase tracking-[0.3em] tabular-nums">
+                <div className="text-[9px] font-black text-system-lime bg-black px-4 py-1.5 rounded-full uppercase tracking-[0.3em] tabular-nums">
                   001 — {initialProjects.length.toString().padStart(3, '0')}
                 </div>
-              </div>
+              </Reveal>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 {initialProjects.map((project: any, i: number) => (
-                  <motion.div 
+                  <motion.div
                     key={project.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8, delay: i * 0.1 }}
+                    custom={i}
+                    variants={cardVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-60px" }}
+                    whileHover={reduce ? undefined : { y: -8 }}
+                    whileTap={reduce ? undefined : { scale: 0.99 }}
+                    transition={spring.soft}
                     onClick={() => setSelectedProject(project)}
                     className="group cursor-pointer text-left"
                   >
-                    <div className="aspect-[2/1] md:aspect-[16/10] bg-zinc-950 rounded-xl md:rounded-2xl mb-2 md:mb-3 overflow-hidden relative border border-zinc-50 shadow-sm hover:shadow-xl transition-all duration-700">
+                    <div className="aspect-[16/10] bg-gradient-to-br from-zinc-900 to-black rounded-2xl md:rounded-3xl mb-5 overflow-hidden relative border border-zinc-100 shadow-sm group-hover:shadow-2xl group-hover:shadow-system-lime/10 transition-shadow duration-500">
                       {project.imageUrl ? (
-                         <img src={project.imageUrl} className="absolute inset-0 w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-700" alt={project.title} />
+                         <img src={project.imageUrl} className="absolute inset-0 w-full h-full object-contain grayscale group-hover:grayscale-0 scale-100 group-hover:scale-[1.05] transition-[filter,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" alt={project.title} />
                       ) : (
-                        <div className="absolute inset-0 bg-white flex items-center justify-center">
-                           <span className="text-[8px] font-black uppercase tracking-[0.6em] text-zinc-200">View Project</span>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                           <span className="text-[10px] font-black uppercase tracking-[0.6em] text-zinc-600">{project.title}</span>
                         </div>
                       )}
-                      <div className="absolute bottom-3 left-3 right-3 p-3 bg-black/80 backdrop-blur-md rounded-lg opacity-0 group-hover:opacity-100 transition-opacity translate-y-1 group-hover:translate-y-0 duration-500 border border-white/10">
-                          <p className="text-[8px] font-black text-system-lime uppercase tracking-widest mb-0.5">{project.category}</p>
-                          <h3 className="text-sm font-black text-white uppercase tracking-tighter">{project.title}</h3>
-                      </div>
+
+                      {/* Category tag — always visible, top-left */}
+                      <span className="absolute top-4 left-4 px-3 py-1.5 bg-black/70 backdrop-blur-md text-system-lime text-[9px] font-black uppercase tracking-widest rounded-full border border-white/10">
+                        {project.category}
+                      </span>
+
+                      {/* "View" affordance — slides in on hover so it's clear the card opens */}
+                      <span className="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 bg-system-lime text-black text-[10px] font-black uppercase tracking-widest rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-lg">
+                        View <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
                     </div>
+
                     <div className="px-1">
-                      <h3 className="text-base font-black mb-0.5 tracking-tighter uppercase group-hover:text-system-lime transition-colors leading-none">{project.title}</h3>
-                      <p className="text-zinc-500 text-[10px] leading-tight font-medium line-clamp-1">{project.description}</p>
+                      <h3 className="text-xl md:text-2xl font-black mb-2 tracking-tighter uppercase group-hover:text-system-lime-dark transition-colors leading-none">{project.title}</h3>
+                      <p className="text-zinc-500 text-sm leading-relaxed font-medium line-clamp-2">{project.description}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -472,22 +525,24 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                 viewport={{ once: true }}
                 className="text-[9px] font-black text-system-lime uppercase tracking-[0.6em] mb-8"
               >
-                The Next Iteration
+                Get in touch
               </motion.h2>
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
                 className="text-3xl md:text-6xl font-black tracking-tighter mb-12 md:mb-16 leading-tight"
               >
-                Let's architect<br/>the <span className="italic font-serif text-system-lime underline decoration-white/10">impossible</span>.
+                Let's build<br/>something <span className="italic font-serif text-system-lime">great</span>.
               </motion.p>
               
               <div className="flex flex-wrap justify-center gap-6">
-                <Link href="https://wa.me/6287852986638" className="bg-system-lime text-black px-8 py-4 rounded-xl text-lg font-black uppercase tracking-tighter hover:scale-105 transition-transform">
-                  Initiate Sequence
-                </Link>
+                <Magnetic strength={0.5}>
+                  <Link href="https://wa.me/6287852986638" className="press inline-block bg-system-lime text-black px-8 py-4 rounded-xl text-lg font-black uppercase tracking-tighter hover:bg-white transition-colors shadow-xl shadow-system-lime/20">
+                    Start a Project
+                  </Link>
+                </Magnetic>
               </div>
             </div>
 
@@ -498,7 +553,7 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                     NANDA
                   </div>
                   <p className="text-zinc-500 font-medium leading-relaxed max-w-xs">
-                    Engineering autonomous intelligence and high-fidelity business systems.
+                    Building AI systems and automation that help businesses work faster and waste less.
                   </p>
                </div>
                
@@ -519,11 +574,11 @@ export default function HomePage({ initialProjects, userProfile }: any) {
 
                <div className="md:text-right flex flex-col justify-between">
                   <div>
-                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Uptime Status</p>
-                    <p className="text-sm font-bold uppercase tracking-tighter text-system-lime">System Operational 100%</p>
+                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Availability</p>
+                    <p className="text-sm font-bold uppercase tracking-tighter text-system-lime">Open to new projects</p>
                   </div>
                   <div className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mt-10">
-                    © 2026 Treshnanda Architecture
+                    © 2026 Treshnanda
                   </div>
                </div>
             </div>
