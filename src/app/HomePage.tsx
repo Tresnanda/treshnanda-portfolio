@@ -484,7 +484,7 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                   >
                     <div className="aspect-[16/10] bg-gradient-to-br from-zinc-900 to-black rounded-2xl md:rounded-3xl mb-5 overflow-hidden relative border border-zinc-100 shadow-sm group-hover:shadow-2xl group-hover:shadow-system-lime/10 transition-shadow duration-500">
                       {project.imageUrl ? (
-                         <img src={project.imageUrl} className="absolute inset-0 w-full h-full object-contain grayscale group-hover:grayscale-0 scale-100 group-hover:scale-[1.05] transition-[filter,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" alt={project.title} />
+                         <img src={project.imageUrl} className="absolute inset-0 w-full h-full object-contain scale-100 group-hover:scale-[1.05] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" alt={project.title} />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
                            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-zinc-600">{project.title}</span>
