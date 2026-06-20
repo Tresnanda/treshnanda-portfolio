@@ -10,7 +10,7 @@ import ShaderBackground from "@/components/ShaderBackground";
 import VelocityMarquee from "@/components/VelocityMarquee";
 import Reveal from "@/components/Reveal";
 import StatusPill from "@/components/StatusPill";
-import ProjectRow from "@/components/ProjectRow";
+import ProjectGallery from "@/components/ProjectGallery";
 import RevealText from "@/components/RevealText";
 import CursorGlow from "@/components/CursorGlow";
 import ScrambleText from "@/components/ScrambleText";
@@ -474,16 +474,7 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                 </span>
               </Reveal>
               
-              <div className="space-y-16 md:space-y-24">
-                {initialProjects.map((project: any, i: number) => (
-                  <ProjectRow
-                    key={project.id}
-                    project={project}
-                    index={i}
-                    onOpen={() => setSelectedProject(project)}
-                  />
-                ))}
-              </div>
+              <ProjectGallery projects={initialProjects} onOpen={setSelectedProject} />
             </div>
           </section>
         </main>
