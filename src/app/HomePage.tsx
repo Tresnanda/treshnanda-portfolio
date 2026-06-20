@@ -138,7 +138,7 @@ export default function HomePage({ initialProjects, userProfile }: any) {
                 role="dialog"
                 aria-modal="true"
                 aria-label={selectedProject.title}
-                className="relative w-full max-w-5xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] will-change-transform"
+                className="relative w-full max-w-5xl h-[85vh] max-h-[680px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col md:flex-row will-change-transform"
               >
                 <motion.button
                   onClick={() => setSelectedProject(null)}
