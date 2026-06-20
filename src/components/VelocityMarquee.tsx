@@ -66,7 +66,7 @@ export default function VelocityMarquee({
     >
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-10 md:gap-16">
-          <span className="text-2xl md:text-5xl font-black tracking-tighter uppercase text-white/30 transition-colors hover:text-system-lime">
+          <span className="inline-block text-2xl md:text-5xl font-black tracking-tighter uppercase text-white/30 transition-[color,transform] duration-300 hover:text-system-lime hover:-translate-y-1 hover:scale-105">
             {item}
           </span>
           <span className="text-system-lime text-lg md:text-2xl">✦</span>

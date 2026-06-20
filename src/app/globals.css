@@ -79,6 +79,43 @@
   }
 }
 
+/* Shine sweep: a soft highlight glides across a button on hover. The ::after
+   is pointer-events-none and only transform animates, so it stays cheap.
+   Best on dark / coloured buttons (the highlight is translucent white). */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.35) 48%, transparent 66%);
+  transform: translateX(-130%);
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .shine:hover::after {
+    transform: translateX(130%);
+    transition: transform 750ms var(--ease-out-quint);
+  }
+}
+
+/* Animated underline that draws left→right on hover. Background-size trick so
+   only background-size animates (cheap), and it survives multi-line wraps. */
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1.5px;
+  transition: background-size 280ms var(--ease-out-quint);
+}
+@media (hover: hover) and (pointer: fine) {
+  .link-underline:hover {
+    background-size: 100% 1.5px;
+  }
+}
+
 /* GPU-accelerated film grain for the shader hero. Only transform/opacity
    animate, so it stays off the layout/paint path. */
 .grain-overlay {
