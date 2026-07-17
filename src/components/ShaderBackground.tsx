@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { MeshGradient } from "@paper-design/shaders-react";
 import { useReducedMotion } from "framer-motion";
 
@@ -12,10 +13,20 @@ import { useReducedMotion } from "framer-motion";
  */
 export default function ShaderBackground() {
   const reduce = useReducedMotion();
+  const [webgl, setWebgl] = useState(false);
+
+  useEffect(() => {
+    try {
+      const canvas = document.createElement("canvas");
+      setWebgl(Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl")));
+    } catch {
+      setWebgl(false);
+    }
+  }, []);
 
   return (
-    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      <MeshGradient
+    <div className="absolute inset-0 overflow-hidden bg-[radial-gradient(circle_at_22%_78%,#263000_0%,#111500_24%,#0A0A0A_58%)]" aria-hidden="true">
+      {webgl ? <MeshGradient
         className="absolute inset-0 h-full w-full"
         style={{ width: "100%", height: "100%" }}
         colors={["#0A0A0A", "#0A0A0A", "#141a00", "#3a4a00", "#CCFF00"]}
@@ -23,7 +34,7 @@ export default function ShaderBackground() {
         swirl={0.6}
         grainOverlay={0.05}
         speed={reduce ? 0 : 0.4}
-      />
+      /> : null}
 
       {/* Black stays the theme — the shader reads as a single lime glow rising
           from one corner. Heavy overlay + vignette keep the field near-black. */}

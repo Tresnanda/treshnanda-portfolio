@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useInView, useReducedMotion } from "framer-motion";
+import { useInView } from "framer-motion";
+import useReducedMotionPreference from "@/hooks/useReducedMotionPreference";
 
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*/";
 
@@ -14,7 +15,7 @@ const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*/";
 export default function ScrambleText({ text, className }: { text: string; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionPreference();
   const [display, setDisplay] = useState(text);
   const raf = useRef(0);
 

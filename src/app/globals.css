@@ -22,11 +22,19 @@
 }
 
 :root {
-  --background: #fdfdfc;
-  --foreground: #1a1a18;
+  /* The site is dark-first: the page canvas must match, or Chrome paints
+     white into not-yet-rendered regions during fast scrolling (white flash).
+     Light routes (admin) paint their own full-height backgrounds. */
+  --background: #0a0a0a;
+  --foreground: #f4f2ec;
   --emerald-primary: #CCFF00;
   --forest-deep: #CCFF00;
   --accent-cream: #f9f7f2;
+  --editorial-ink: oklch(0.135 0.006 95);
+  --editorial-ink-raised: oklch(0.18 0.006 95);
+  --editorial-paper: oklch(0.955 0.014 88);
+  --editorial-paper-muted: oklch(0.905 0.012 88);
+  --editorial-muted: oklch(0.72 0.012 88);
 }
 
 @layer base {
@@ -35,7 +43,78 @@
   }
   body {
     @apply bg-[var(--background)] text-[var(--foreground)] antialiased overflow-x-hidden;
+    font-synthesis: none;
   }
+
+  ::selection {
+    background: #CCFF00;
+    color: #0A0A0A;
+  }
+}
+
+@layer components {
+  .editorial-ink {
+    background: var(--editorial-ink);
+    color: var(--editorial-paper);
+  }
+
+  .editorial-paper {
+    background: var(--editorial-paper);
+  }
+
+  .editorial-grid {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 0.75rem;
+  }
+
+  .editorial-kicker,
+  .editorial-meta {
+    font-size: 0.6875rem;
+    line-height: 1.35;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .editorial-meta {
+    color: color-mix(in oklch, var(--editorial-paper) 42%, transparent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .editorial-display {
+    font-size: clamp(3rem, 7vw, 7.25rem);
+    line-height: 0.86;
+    font-weight: 900;
+    letter-spacing: -0.065em;
+    text-wrap: balance;
+  }
+}
+
+@media (min-width: 48rem) {
+  .editorial-grid {
+    padding-inline: 2rem;
+    column-gap: 1.25rem;
+  }
+}
+
+/* Ghost folio numerals: outlined, unfilled chapter numbers (swiss page folio). */
+.folio-outline {
+  color: transparent;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: rgba(244, 242, 236, 0.22);
+}
+
+/* Ink variant for paper surfaces. Fill color is left to utilities so
+   `text-transparent` + `group-hover:text-system-lime` can ink it in. */
+.folio-outline-ink {
+  -webkit-text-stroke-width: 1.5px;
+  -webkit-text-stroke-color: rgba(17, 17, 15, 0.25);
 }
 
 .glass-nav {
@@ -54,13 +133,20 @@
   @apply bg-white rounded-[2rem] border border-zinc-200/60 shadow-sm hover:shadow-2xl hover:shadow-emerald-900/5 transition-all duration-500 overflow-hidden;
 }
 
-/* Hide Scrollbar */
-::-webkit-scrollbar {
-  display: none;
-}
+/* Keep the browser's scroll affordance, but make it visually compatible with the publication shell. */
 * {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: #CCFF00 var(--editorial-ink);
+}
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--editorial-ink);
+}
+::-webkit-scrollbar-thumb {
+  background: #CCFF00;
+  border: 3px solid var(--editorial-ink);
 }
 
 /* ----------------------------------------------------------------------------
@@ -150,5 +236,16 @@
   }
   .grain-overlay {
     animation: none;
+  }
+  .motion-only {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  header,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl {
+    backdrop-filter: none !important;
   }
 }

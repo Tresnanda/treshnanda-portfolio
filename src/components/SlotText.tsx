@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { SlotText as LibSlotText } from "slot-text/react";
 import type { SlotOptions } from "slot-text";
-import { useInView, useReducedMotion } from "framer-motion";
+import { useInView } from "framer-motion";
+import useReducedMotionPreference from "@/hooks/useReducedMotionPreference";
 import "slot-text/style.css";
 
 /**
@@ -32,7 +33,7 @@ export default function SlotText({
   options?: SlotOptions;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionPreference();
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const [idx, setIdx] = useState(0);

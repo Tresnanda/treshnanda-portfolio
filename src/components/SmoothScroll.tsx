@@ -21,14 +21,16 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
     // Exposed so components (e.g. the project gallery arrows) can scroll smoothly.
     (window as unknown as { lenis?: Lenis }).lenis = lenis;
 
+    let rafId = 0;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
       delete (window as unknown as { lenis?: Lenis }).lenis;
     };

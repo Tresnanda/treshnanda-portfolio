@@ -1,51 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-import { useReducedMotion } from "framer-motion";
 import ProjectRow from "@/components/ProjectRow";
-
-// Three.js stays out of the main bundle / off the server.
-const ProjectGallery3D = dynamic(() => import("@/components/ProjectGallery3D"), { ssr: false });
-
-function webglAvailable() {
-  try {
-    const c = document.createElement("canvas");
-    return !!(window.WebGLRenderingContext && (c.getContext("webgl2") || c.getContext("webgl")));
-  } catch {
-    return false;
-  }
-}
+import type { PortfolioProject } from "@/lib/portfolio-types";
 
 /**
- * Selected Works renderer. Defaults to the flat alternating rows (SSR-safe, the
- * universal fallback). On a capable desktop — wide viewport, motion allowed,
- * WebGL present — it upgrades to the 3D coverflow after mount.
+ * Editorial project index: paper feature plates on the 12-column grid.
+ * (The 3D showcase experiments live in WorkShowcase3D.tsx, currently unused.)
  */
 export default function ProjectGallery({
   projects,
   onOpen,
 }: {
-  projects: any[];
-  onOpen: (project: any) => void;
+  projects: PortfolioProject[];
+  onOpen: (project: PortfolioProject) => void;
 }) {
-  const reduce = useReducedMotion();
-  const [use3D, setUse3D] = useState(false);
-
-  useEffect(() => {
-    const wide = window.matchMedia("(min-width: 1024px)").matches;
-    setUse3D(wide && !reduce && projects.length > 0 && webglAvailable());
-  }, [reduce, projects.length]);
-
-  if (use3D) {
-    return <ProjectGallery3D projects={projects} onOpen={onOpen} />;
-  }
-
   return (
-    <div className="space-y-16 md:space-y-24">
-      {projects.map((p, i) => (
-        <ProjectRow key={p.id ?? i} project={p} index={i} onOpen={() => onOpen(p)} />
+    // One continuous paper signature — hairlines separate the plates, not gaps.
+    <div className="editorial-paper">
+      {projects.map((project, index) => (
+        <ProjectRow key={project.id ?? index} project={project} index={index} onOpen={() => onOpen(project)} />
       ))}
+      {projects.length === 0 ? (
+        <div className="editorial-paper grid min-h-64 place-items-center p-8 text-center text-[#11110f]">
+          <div>
+            <p className="editorial-meta !text-black/40">Archive status / Empty</p>
+            <p className="mt-5 text-2xl font-black tracking-[-0.045em]">Projects will appear here when published.</p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,11 +1,14 @@
 "use client";
+/* eslint-disable react-hooks/immutability -- R3F frame loops intentionally mutate Three.js objects and shader uniforms. */
 
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import { useScroll, useMotionValueEvent } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import * as THREE from "three";
+
+import type { PortfolioProject } from "@/lib/portfolio-types";
 
 /**
  * Scroll-driven 3D project gallery (Three.js / R3F). The section PINS while in
@@ -24,6 +27,16 @@ const clampN = THREE.MathUtils.clamp;
 type Layout = { x: number; y: number; z: number; rotY: number; scale: number };
 type Drag = { down: boolean; startX: number; startScroll: number; moved: number; min: number; max: number };
 type Pointer = { x: number; y: number };
+type InvalidateRef = React.MutableRefObject<(() => void) | null>;
+
+const FALLBACK_TEXTURE =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000'%3E%3Crect width='100%25' height='100%25' fill='%23161616'/%3E%3C/svg%3E";
+
+function getTextureUrl(url: string | null) {
+  if (!url) return FALLBACK_TEXTURE;
+  if (url.startsWith("/")) return `/_next/image?url=${encodeURIComponent(url)}&w=1200&q=75`;
+  return url;
+}
 
 function ringTarget(variant: Variant, offset: number, hovered: boolean): Layout {
   const abs = Math.abs(offset);
@@ -62,6 +75,7 @@ function Card({
   onHover: (index: number) => void;
 }) {
   const mesh = useRef<THREE.Mesh>(null);
+  const invalidate = useThree((state) => state.invalidate);
   const [hovered, setHovered] = useState(false);
   const img = texture.image as { width?: number; height?: number } | undefined;
   const aspect = (img?.width || 16) / (img?.height || 10);
@@ -87,8 +101,8 @@ function Card({
             vec4 c = texture2D(map, vUv);
             if (uBlur > 0.0002) {
               float total = 1.0;
-              for (int i = 0; i < 12; i++) {
-                float a = float(i) * 0.5235988;
+              for (int i = 0; i < 4; i++) {
+                float a = float(i) * 1.5707963;
                 vec2 d = vec2(cos(a), sin(a));
                 c += texture2D(map, vUv + d * uBlur);
                 c += texture2D(map, vUv + d * (uBlur * 0.5));
@@ -134,8 +148,22 @@ function Card({
     m.rotation.x = lerp(m.rotation.x, -p.y * 0.16 * focusAmt, 0.1);
     const s = lerp(m.scale.x, t.scale, 0.14);
     m.scale.set(s, s, s);
-    material.uniforms.uBlur.value = lerp(material.uniforms.uBlur.value, focus ? 0 : Math.min(abs * 0.0065, 0.013), 0.14);
-    material.uniforms.uHover.value = lerp(material.uniforms.uHover.value, hovered && focus ? 1 : 0, 0.14);
+    const blurTarget = focus ? 0 : Math.min(abs * 0.0065, 0.013);
+    const hoverTarget = hovered && focus ? 1 : 0;
+    material.uniforms.uBlur.value = lerp(material.uniforms.uBlur.value, blurTarget, 0.14);
+    material.uniforms.uHover.value = lerp(material.uniforms.uHover.value, hoverTarget, 0.14);
+
+    const settling =
+      Math.abs(m.position.x - t.x) > 0.002 ||
+      Math.abs(m.position.y - t.y) > 0.002 ||
+      Math.abs(m.position.z - t.z) > 0.002 ||
+      Math.abs(m.rotation.y - (t.rotY + p.x * 0.22 * focusAmt)) > 0.002 ||
+      Math.abs(m.rotation.x - (-p.y * 0.16 * focusAmt)) > 0.002 ||
+      Math.abs(m.scale.x - t.scale) > 0.002 ||
+      Math.abs(material.uniforms.uBlur.value - blurTarget) > 0.0002 ||
+      Math.abs(material.uniforms.uHover.value - hoverTarget) > 0.002;
+
+    if (settling || dragRef.current.down) invalidate();
   });
 
   return (
@@ -150,8 +178,12 @@ function Card({
         e.stopPropagation();
         setHovered(true);
         onHover(index);
+        invalidate();
       }}
-      onPointerOut={() => setHovered(false)}
+      onPointerOut={() => {
+        setHovered(false);
+        invalidate();
+      }}
     >
       <planeGeometry args={[W, H]} />
     </mesh>
@@ -168,7 +200,7 @@ function Scene({
   onOpen,
   onHover,
 }: {
-  projects: any[];
+  projects: PortfolioProject[];
   variant: Variant;
   posRef: React.MutableRefObject<number>;
   progressRef: React.MutableRefObject<number>;
@@ -177,15 +209,20 @@ function Scene({
   onOpen: (index: number) => void;
   onHover: (index: number) => void;
 }) {
-  const urls = useMemo(() => projects.map((p) => p.imageUrl || ""), [projects]);
+  const invalidate = useThree((state) => state.invalidate);
+  const urls = useMemo(() => projects.map((project) => getTextureUrl(project.imageUrl)), [projects]);
   const textures = useTexture(urls) as THREE.Texture[];
-  textures.forEach((t) => (t.colorSpace = THREE.SRGBColorSpace));
+  textures.forEach((texture) => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = Math.min(texture.anisotropy || 1, 4);
+  });
   const last = Math.max(0, projects.length - 1);
 
   // Scroll progress drives the ring; pos eases toward it for momentum.
   useFrame(() => {
     const target = progressRef.current * last;
     posRef.current += (target - posRef.current) * 0.18;
+    if (Math.abs(target - posRef.current) > 0.001 || dragRef.current.down) invalidate();
   });
 
   return (
@@ -197,13 +234,27 @@ function Scene({
   );
 }
 
+function InvalidateBridge({ invalidateRef }: { invalidateRef: InvalidateRef }) {
+  const invalidate = useThree((state) => state.invalidate);
+
+  useEffect(() => {
+    invalidateRef.current = invalidate;
+    invalidate();
+    return () => {
+      invalidateRef.current = null;
+    };
+  }, [invalidate, invalidateRef]);
+
+  return null;
+}
+
 export default function ProjectGallery3D({
   projects,
   onOpen,
   variant = "helix",
 }: {
-  projects: any[];
-  onOpen: (project: any) => void;
+  projects: PortfolioProject[];
+  onOpen: (project: PortfolioProject) => void;
   variant?: Variant;
 }) {
   const count = projects.length;
@@ -213,6 +264,7 @@ export default function ProjectGallery3D({
   const progressRef = useRef(0);
   const dragRef = useRef<Drag>({ down: false, startX: 0, startScroll: 0, moved: 0, min: 0, max: 0 });
   const pointerRef = useRef<Pointer>({ x: 0, y: 0 });
+  const invalidateRef = useRef<(() => void) | null>(null);
   const finePointer = useRef(false);
   const [active, setActive] = useState(0);
 
@@ -223,6 +275,7 @@ export default function ProjectGallery3D({
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ["start start", "end end"] });
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     progressRef.current = v;
+    invalidateRef.current?.();
     const idx = clampN(Math.round(v * last), 0, count - 1);
     setActive((a) => (a === idx ? a : idx));
   });
@@ -278,11 +331,13 @@ export default function ProjectGallery3D({
     const r = e.currentTarget.getBoundingClientRect();
     pointerRef.current.x = clampN(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1);
     pointerRef.current.y = clampN(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1);
+    invalidateRef.current?.();
   };
   const onStageLeave = () => {
     onDragEnd();
     pointerRef.current.x = 0;
-    pointerRef.current.y = 0; // card eases back to flat (lerp handles the settle)
+    pointerRef.current.y = 0;
+    invalidateRef.current?.(); // card eases back to flat (lerp handles the settle)
   };
 
   return (
@@ -314,7 +369,14 @@ export default function ProjectGallery3D({
           />
         </div>
 
-        <Canvas className="!absolute inset-0" camera={{ position: [0, 0, 4.6], fov: 46 }} dpr={[1, 2]} gl={{ antialias: true }}>
+        <Canvas
+          className="!absolute inset-0"
+          camera={{ position: [0, 0, 4.6], fov: 46 }}
+          dpr={[1, 1.5]}
+          frameloop="demand"
+          gl={{ antialias: true, powerPreference: "high-performance" }}
+        >
+          <InvalidateBridge invalidateRef={invalidateRef} />
           <Suspense fallback={null}>
             <Scene projects={projects} variant={variant} posRef={posRef} progressRef={progressRef} dragRef={dragRef} pointerRef={pointerRef} onOpen={(i) => onOpen(projects[i])} onHover={setActive} />
           </Suspense>
@@ -325,7 +387,7 @@ export default function ProjectGallery3D({
           onClick={() => go(-1)}
           disabled={active <= 0}
           aria-label="Previous project"
-          className="group absolute left-4 md:left-12 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border border-zinc-200/70 shadow-lg flex items-center justify-center text-zinc-700 transition-[transform,background-color,color,box-shadow] duration-200 ease-out hover:scale-105 hover:bg-black hover:text-system-lime hover:shadow-xl active:scale-90 disabled:opacity-25 disabled:hover:scale-100 disabled:hover:bg-white/80 disabled:hover:text-zinc-700"
+          className="group absolute left-4 md:left-12 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border border-zinc-200/70 shadow-lg flex items-center justify-center text-zinc-700 transition-[transform,background-color,color,box-shadow] duration-200 ease-out hover:scale-105 hover:bg-black hover:text-system-lime hover:shadow-xl active:scale-96 disabled:opacity-25 disabled:hover:scale-100 disabled:hover:bg-white/80 disabled:hover:text-zinc-700"
         >
           <ChevronLeft className="w-5 h-5 transition-transform duration-200 ease-out group-hover:-translate-x-0.5 group-active:-translate-x-1" />
         </button>
@@ -333,15 +395,15 @@ export default function ProjectGallery3D({
           onClick={() => go(1)}
           disabled={active >= count - 1}
           aria-label="Next project"
-          className="group absolute right-4 md:right-12 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border border-zinc-200/70 shadow-lg flex items-center justify-center text-zinc-700 transition-[transform,background-color,color,box-shadow] duration-200 ease-out hover:scale-105 hover:bg-black hover:text-system-lime hover:shadow-xl active:scale-90 disabled:opacity-25 disabled:hover:scale-100 disabled:hover:bg-white/80 disabled:hover:text-zinc-700"
+          className="group absolute right-4 md:right-12 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border border-zinc-200/70 shadow-lg flex items-center justify-center text-zinc-700 transition-[transform,background-color,color,box-shadow] duration-200 ease-out hover:scale-105 hover:bg-black hover:text-system-lime hover:shadow-xl active:scale-96 disabled:opacity-25 disabled:hover:scale-100 disabled:hover:bg-white/80 disabled:hover:text-zinc-700"
         >
           <ChevronRight className="w-5 h-5 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-active:translate-x-1" />
         </button>
 
         {/* Caption + position dots */}
         <div className="pointer-events-none absolute bottom-10 left-0 right-0 flex flex-col items-center gap-3 px-6 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">{projects[active]?.category}</p>
-          <h3 className="text-2xl md:text-3xl font-black tracking-tighter text-zinc-900">{projects[active]?.title}</h3>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-white/45">{projects[active]?.category}</p>
+          <h3 className="text-2xl md:text-3xl font-black tracking-tighter text-white">{projects[active]?.title}</h3>
           <div className="pointer-events-auto flex items-center gap-1.5">
             {projects.map((p, i) => (
               <button
@@ -352,8 +414,8 @@ export default function ProjectGallery3D({
                 className="group/dot -my-2 px-0.5 py-2"
               >
                 <span
-                  className={`block h-1.5 rounded-full transition-all duration-300 ease-out group-hover/dot:scale-y-[1.6] ${
-                    i === active ? "w-5 bg-system-lime" : "w-1.5 bg-zinc-300 group-hover/dot:bg-zinc-500"
+                  className={`block h-1.5 rounded-full transition-[width,background-color,transform] duration-300 ease-out group-hover/dot:scale-y-[1.6] ${
+                    i === active ? "w-5 bg-system-lime" : "w-1.5 bg-white/25 group-hover/dot:bg-white/55"
                   }`}
                 />
               </button>

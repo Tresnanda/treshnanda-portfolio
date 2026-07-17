@@ -1,47 +1,43 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import {
   motion,
   useMotionValue,
   useSpring,
   useTransform,
-  useReducedMotion,
   type Variants,
 } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
-import { ease, spring, inView } from "@/lib/motion";
 
-/**
- * One Selected-Works row. Microinteractions, all gated on reduced-motion:
- *  - entrance: image wipes up (clip-path), text cascades in (stagger)
- *  - hover: image tilts toward the cursor on a spring (decorative, weighty)
- *           with a cursor-following sheen + a gentle scale
- *  - CTA: arrow nudges out, underline draws left→right
- *  - press: whole row dips (Emil's tactile feedback)
- *
- * Premium personality: long, smooth reveals (no overshoot); springy but damped hover.
- */
+import useReducedMotionPreference from "@/hooks/useReducedMotionPreference";
+import { ease, inView, spring } from "@/lib/motion";
+import type { PortfolioProject } from "@/lib/portfolio-types";
 
 const rowParent: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+  visible: { transition: { staggerChildren: 0.055, delayChildren: 0.04 } },
 };
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 18, filter: "blur(6px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.6, ease: ease.out } },
+  hidden: { opacity: 0, transform: "translateY(16px)" },
+  visible: { opacity: 1, transform: "translateY(0px)", transition: { duration: 0.5, ease: ease.out } },
 };
 
 const imageReveal: Variants = {
-  // Wipe up from the bottom; the rounded corners come from the clipping parent.
-  hidden: { opacity: 0, clipPath: "inset(0 0 100% 0)", scale: 1.06 },
-  visible: { opacity: 1, clipPath: "inset(0 0 0% 0)", scale: 1, transition: { duration: 0.9, ease: ease.drawer } },
+  hidden: { opacity: 0, clipPath: "inset(0 0 100% 0)", transform: "scale(1.035)" },
+  visible: {
+    opacity: 1,
+    clipPath: "inset(0 0 0% 0)",
+    transform: "scale(1)",
+    transition: { duration: 0.8, ease: ease.drawer },
+  },
 };
 
 const fadeOnly: Variants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.4, ease: ease.out } },
+  visible: { opacity: 1, transition: { duration: 0.3, ease: ease.out } },
 };
 
 export default function ProjectRow({
@@ -49,37 +45,39 @@ export default function ProjectRow({
   index,
   onOpen,
 }: {
-  project: any;
+  project: PortfolioProject;
   index: number;
   onOpen: () => void;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionPreference();
   const flipped = index % 2 === 1;
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Pointer position within the image, normalised to -0.5..0.5, spring-smoothed
-  // so the tilt has momentum instead of snapping to the cursor.
-  const px = useMotionValue(0);
-  const py = useMotionValue(0);
-  const rotateX = useSpring(useTransform(py, [-0.5, 0.5], [7, -7]), { stiffness: 150, damping: 18 });
-  const rotateY = useSpring(useTransform(px, [-0.5, 0.5], [-9, 9]), { stiffness: 150, damping: 18 });
-  const sheen = useTransform([px, py], ([x, y]: number[]) =>
-    `radial-gradient(300px circle at ${(x + 0.5) * 100}% ${(y + 0.5) * 100}%, rgba(255,255,255,0.22), transparent 60%)`
+  const imageRef = useRef<HTMLDivElement>(null);
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(pointerY, [-0.5, 0.5], [4, -4]), { stiffness: 170, damping: 24 });
+  const rotateY = useSpring(useTransform(pointerX, [-0.5, 0.5], [-5, 5]), { stiffness: 170, damping: 24 });
+  const sheen = useTransform([pointerX, pointerY], ([x, y]: number[]) =>
+    `radial-gradient(320px circle at ${(x + 0.5) * 100}% ${(y + 0.5) * 100}%, rgba(255,255,255,0.22), transparent 62%)`,
   );
 
-  function onMove(e: React.MouseEvent) {
-    if (reduce || !ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    px.set((e.clientX - r.left) / r.width - 0.5);
-    py.set((e.clientY - r.top) / r.height - 0.5);
-  }
-  function onLeave() {
-    px.set(0);
-    py.set(0);
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    if (reduce || event.pointerType === "touch" || !imageRef.current) return;
+    const bounds = imageRef.current.getBoundingClientRect();
+    pointerX.set((event.clientX - bounds.left) / bounds.width - 0.5);
+    pointerY.set((event.clientY - bounds.top) / bounds.height - 0.5);
   }
 
+  function resetPointer() {
+    pointerX.set(0);
+    pointerY.set(0);
+  }
+
+  const issue = String(index + 1).padStart(2, "0");
+  const year = project.createdAt ? new Date(project.createdAt).getFullYear() : "—";
+
   return (
-    <motion.div
+    <motion.button
+      type="button"
       variants={rowParent}
       initial="hidden"
       whileInView="visible"
@@ -87,69 +85,120 @@ export default function ProjectRow({
       whileTap={reduce ? undefined : { scale: 0.99 }}
       transition={spring.press}
       onClick={onOpen}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onOpen()}
-      className="group grid md:grid-cols-2 gap-7 md:gap-14 items-center cursor-pointer text-left outline-none focus-visible:ring-2 focus-visible:ring-system-lime focus-visible:ring-offset-4 focus-visible:ring-offset-white rounded-3xl"
+      aria-label={`Open project: ${project.title}`}
+      className="group grid w-full grid-cols-12 gap-x-3 border-t border-black/15 p-4 text-left text-[#11110f] outline-none transition-colors duration-300 first:border-t-0 hover:bg-black/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black/60 md:gap-x-5 md:p-7 md:py-10"
     >
-      {/* Image — tilts on a spring, sheen follows the cursor, wipes up on enter */}
-      <div
-        ref={ref}
-        onMouseMove={onMove}
-        onMouseLeave={onLeave}
-        style={{ perspective: 1000 }}
-        className={flipped ? "md:order-2" : ""}
-      >
-        <motion.div
-          variants={reduce ? fadeOnly : imageReveal}
-          whileHover={reduce ? undefined : { scale: 1.03 }}
-          transition={spring.soft}
-          style={reduce ? undefined : { rotateX, rotateY, transformStyle: "preserve-3d" }}
-          className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/70 transition-colors duration-300 group-hover:border-zinc-300 will-change-transform"
+      <div className={`col-span-12 md:col-span-7 ${flipped ? "md:order-2 md:col-start-6" : ""}`}>
+        <div
+          ref={imageRef}
+          onPointerMove={handlePointerMove}
+          onPointerLeave={resetPointer}
+          style={{ perspective: 1200 }}
         >
-          {project.imageUrl ? (
-            <img
-              src={project.imageUrl}
-              alt={project.title}
-              className="absolute inset-0 w-full h-full object-cover object-top"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-400">{project.title}</span>
-            </div>
-          )}
+          <motion.div
+            variants={reduce ? fadeOnly : imageReveal}
+            whileHover={reduce ? undefined : { scale: 1.012 }}
+            transition={spring.soft}
+            style={reduce ? undefined : { rotateX, rotateY, transformStyle: "preserve-3d" }}
+            className="relative aspect-[4/3] overflow-hidden bg-black/5 outline outline-1 -outline-offset-1 outline-black/10"
+          >
+            {project.imageUrl?.startsWith("/") ? (
+              <Image
+                src={project.imageUrl}
+                alt={project.title}
+                fill
+                sizes="(min-width: 1024px) 56vw, 100vw"
+                className="object-cover object-top transition-transform duration-500 ease-[var(--ease-out-quint)] group-hover:scale-[1.015]"
+              />
+            ) : project.imageUrl ? (
+              <img
+                src={project.imageUrl}
+                alt={project.title}
+                width={1600}
+                height={1200}
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 ease-[var(--ease-out-quint)] group-hover:scale-[1.015]"
+              />
+            ) : (
+              <div className="absolute inset-0 grid place-items-center bg-[var(--editorial-paper-muted)]">
+                <span className="text-[10px] font-black uppercase tracking-[0.18em] text-black/35">Image pending / {issue}</span>
+              </div>
+            )}
 
-          {/* Sheen — secondary layer, only paints on hover */}
-          {!reduce && (
-            <motion.div
-              aria-hidden
-              style={{ backgroundImage: sheen }}
-              className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"
-            />
-          )}
+            {!reduce ? (
+              <motion.div
+                aria-hidden="true"
+                style={{ backgroundImage: sheen }}
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+              />
+            ) : null}
+          </motion.div>
+        </div>
+
+        {/* Figure caption — the meta lives under the image, like a printed plate. */}
+        <motion.div variants={fadeUp} className="mt-3 flex items-baseline justify-between gap-4 border-t border-black/20 pt-3">
+          <p className="editorial-meta !text-black/45 transition-colors duration-300 group-hover:!text-black/70">
+            Fig. {issue} / {project.category}
+          </p>
+          <p className="editorial-meta !text-black/45 tabular-nums transition-colors duration-300 group-hover:!text-black/70">{year}</p>
         </motion.div>
       </div>
 
-      {/* Text */}
-      <div className="md:px-2">
-        <motion.p variants={fadeUp} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-4">
-          {project.category}
-        </motion.p>
-        <motion.h3 variants={fadeUp} className="text-2xl md:text-4xl font-black tracking-tighter text-zinc-900 mb-4 leading-[1.05]">
-          {project.title}
-        </motion.h3>
-        <motion.p variants={fadeUp} className="text-zinc-500 text-base leading-relaxed line-clamp-3 max-w-md mb-6">
-          {project.description}
-        </motion.p>
-        <motion.span
+      <div className={`col-span-12 flex min-h-full flex-col pt-7 md:col-span-5 md:pt-0 ${flipped ? "md:order-1 md:pr-8" : "md:pl-8"}`}>
+        {/* Editorial masthead: micro-caps kicker beside a giant outlined issue
+            numeral. Mirrored on flipped rows so the numeral always sits on the
+            outer page edge, like folio numbers on facing spreads. */}
+        <motion.div
           variants={fadeUp}
-          className="relative inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-900"
+          className={`flex items-start justify-between gap-4 border-b border-black/20 pb-3 ${flipped ? "md:flex-row-reverse" : ""}`}
         >
-          View Project
-          <ArrowUpRight className="w-4 h-4 transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-zinc-900 transition-transform duration-300 ease-out group-hover:scale-x-100" />
-        </motion.span>
+          <p className="editorial-meta !text-black/45 pt-2">Feature</p>
+          <span
+            aria-hidden="true"
+            className="folio-outline-ink -mt-3 text-[4.5rem] font-black leading-[0.85] tracking-[-0.05em] tabular-nums text-transparent transition-colors duration-300 group-hover:text-[#11110f] md:-mt-4 md:text-[6.5rem]"
+          >
+            {issue}
+          </span>
+        </motion.div>
+
+        <motion.div variants={fadeUp} className="pt-6">
+          <h3 className="text-3xl font-black leading-[0.9] tracking-[-0.06em] text-balance md:text-5xl">
+            {/* Ink underline draws left→right under the title on hover. */}
+            <span className="bg-[linear-gradient(currentColor,currentColor)] bg-no-repeat [background-position:0%_96%] [background-size:0%_0.05em] transition-[background-size] duration-350 ease-[var(--ease-out-quint)] group-hover:[background-size:100%_0.05em]">
+              {project.title}
+            </span>
+          </h3>
+          <p className="mt-6 max-w-lg text-sm leading-relaxed text-black/58 text-pretty transition-colors duration-300 group-hover:text-black/75 md:text-base">{project.description}</p>
+        </motion.div>
+
+        {/* Spec ledger: the plate's technical colophon fills the column with
+            real information instead of dead paper. */}
+        <motion.dl variants={fadeUp} className="mt-8 md:mt-10">
+          {(project.tags ?? []).length > 0 ? (
+            <div className="grid grid-cols-12 gap-x-3 border-t border-black/15 py-3 md:gap-x-5">
+              <dt className="col-span-4 editorial-meta !text-black/45">Stack</dt>
+              <dd className="col-span-8 text-[10px] font-bold uppercase leading-relaxed tracking-[0.12em] text-black/60 transition-colors duration-300 group-hover:text-black/80">
+                {(project.tags ?? []).slice(0, 4).join(" / ")}
+              </dd>
+            </div>
+          ) : null}
+          <div className="grid grid-cols-12 gap-x-3 border-t border-black/15 py-3 md:gap-x-5">
+            <dt className="col-span-4 editorial-meta !text-black/45">Status</dt>
+            <dd className="col-span-8 text-[10px] font-bold uppercase leading-relaxed tracking-[0.12em] text-black/60 transition-colors duration-300 group-hover:text-black/80">
+              {project.status || "In production"}
+            </dd>
+          </div>
+        </motion.dl>
+
+        {/* Pinned to the plate's bottom edge, level with the figure caption. */}
+        <motion.div variants={fadeUp} className="mt-auto flex items-center justify-between gap-5 border-t border-black/20 pt-5">
+          <p className="editorial-meta !text-black/45 transition-colors duration-300 group-hover:!text-black/70">Open the feature</p>
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-black text-white transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+            <ArrowUpRight className="h-5 w-5" aria-hidden="true" />
+          </span>
+        </motion.div>
       </div>
-    </motion.div>
+    </motion.button>
   );
 }

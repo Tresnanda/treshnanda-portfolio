@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { motion, useMotionValue, useMotionTemplate, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue, useMotionTemplate } from "framer-motion";
+import useReducedMotionPreference from "@/hooks/useReducedMotionPreference";
 
 /**
  * A soft radial glow that tracks the cursor across this block. Pure motion
@@ -11,15 +12,17 @@ import { motion, useMotionValue, useMotionTemplate, useReducedMotion } from "fra
 export default function CursorGlow({
   children,
   className,
+  wrapperClassName,
   color = "rgba(204,255,0,0.13)",
   size = 520,
 }: {
   children: ReactNode;
   className?: string;
+  wrapperClassName?: string;
   color?: string;
   size?: number;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionPreference();
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(-1000);
   const my = useMotionValue(-1000);
@@ -38,12 +41,15 @@ export default function CursorGlow({
         mx.set(-1000);
         my.set(-1000);
       }}
-      className={`relative ${className ?? ""}`}
+      className={`relative ${wrapperClassName ?? ""}`}
     >
       {!reduce && (
         <motion.div aria-hidden style={{ background: bg }} className="pointer-events-none absolute -inset-8 z-0" />
       )}
-      <div className="relative z-10">{children}</div>
+      {/* Layout classes (e.g. `editorial-grid`) must land on the element that
+          directly wraps children — an extra wrapper between a grid and its
+          items collapses the whole layout into one grid cell. */}
+      <div className={`relative z-10 ${className ?? ""}`}>{children}</div>
     </div>
   );
 }
